@@ -4,16 +4,16 @@ import requests
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
 
-# ローカル実行時に .env を読み込む
 load_dotenv()
 
-TWITTER_USER        = os.environ["TWITTER_USER"]
+# カンマ区切りで複数アカウント対応
+TWITTER_USERS = [u.strip() for u in os.environ["TWITTER_USER"].split(",")]
 DISCORD_WEBHOOK_URL = os.environ["DISCORD_WEBHOOK_URL"]
-RSS_URL             = f"https://twitrss.me/twitter_user_to_rss/?user={TWITTER_USER}"
 
-def fetch_and_notify():
+def fetch_and_notify_for_user(user):
+    rss_url = f"https://twitrss.me/twitter_user_to_rss/?user={user}"
     now = datetime.utcnow()
-    feed = feedparser.parse(RSS_URL)
+    feed = feedparser.parse(rss_url)
 
     for entry in feed.entries:
         pub = datetime(*entry.published_parsed[:6])
@@ -30,8 +30,11 @@ def fetch_and_notify():
         for url in set(urls):
             res = requests.post(DISCORD_WEBHOOK_URL, json={"content": url})
             if res.status_code not in (200, 204):
-                print(f"Failed to send {url}: {res.status_code} {res.text}")
+                print(f"[{user}] Failed to send {url}: {res.status_code}")
+
+def main():
+    for user in TWITTER_USERS:
+        fetch_and_notify_for_user(user)
 
 if __name__ == "__main__":
-    fetch_and_notify()
-
+    main()
