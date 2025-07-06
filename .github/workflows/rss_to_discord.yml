@@ -18,8 +18,17 @@ jobs:
         with:
           python-version: '3.x'
 
+      # ここでまず python と pip のバージョンを確認しておくとデバッグしやすいです
+      - name: Check Python & pip version
+        run: |
+          python --version
+          pip --version
+
       - name: 依存ライブラリをインストール
-        run: pip install -r requirements.txt
+        # どちらも同じ python 環境を使うように -m で明示します
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
 
       - name: RSS を取得して Discord に通知
         env:
