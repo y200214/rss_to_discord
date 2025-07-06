@@ -1,0 +1,28 @@
+name: RSS→Discord 通知
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: リポジトリをチェックアウト
+        uses: actions/checkout@v3
+
+      - name: Python をセットアップ
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: 依存ライブラリをインストール
+        run: pip install -r requirements.txt
+
+      - name: RSS を取得して Discord に通知
+        env:
+          TWITTER_USER: ${{ secrets.TWITTER_USER }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: python rss_to_discord.py
