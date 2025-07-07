@@ -17,7 +17,7 @@ def fetch_and_notify_for_user(user):
 
     for entry in feed.entries:
         pub = datetime(*entry.published_parsed[:6])
-        if now - pub > timedelta(days=10):
+        if now - pub > timedelta(days=5):
             continue
 
         urls = []
